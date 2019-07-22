@@ -3,11 +3,30 @@ const readline = require('readline').createInterface({
   output: process.stdout
 })
 
-readline.question(`Are you ready to play a game? `, answer => {
-  if (answer === 'y') {
-    console.log(`Ok lets go`)
-    readline.close()
-  } else {
+const storyTree = require('./story-tree')
+
+let questionIndex = 0
+
+function processQuestion() {
+
+  if (questionIndex === -1)
     process.exit()
-  }
-})
+    
+  const questionObj = storyTree[questionIndex]
+  const answers = questionObj.answers
+
+  readline.question(`\n\n${questionObj.question}\n: `, answerInput => {
+    
+    const answer = answers.find(x => x.selection === answerInput.trim())
+    if (answer !== undefined) {
+      console.log(`${answer.text}\n`)
+      questionIndex = answer.targetId
+    } else {
+      console.log('Please input a valid answer\n')
+    }
+    readline.question('Press any key to continue', processQuestion)
+  })
+
+}
+
+processQuestion()
